@@ -19,6 +19,8 @@ This framework makes the repo the router. Structured markdown with YAML frontmat
 
 **Key insight:** You don't need vector search when your format is rigid enough. YAML frontmatter + lexical scoring + topic aliases does the job.
 
+**What changed:** Before this, I'd mention something like "that headless Obsidian container on the VPS" and get blank stares. The agent had no record of the three prior sessions where we'd set it up, debugged it, and documented the exact state. I'd burn a conversation just re-establishing operational reality. Now I point the agent at the saved conversation and it loads the full context — what's running, where, how it's configured. No re-explanation. No wasted sessions. The operational state transfers across agents and across time.
+
 ---
 
 ## How It Works

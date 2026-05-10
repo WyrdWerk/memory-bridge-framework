@@ -31,7 +31,7 @@ This document describes the LLM Wiki integration added to the Agentic Memory Hub
 ## Directory Structure
 
 ```
-agentic-memory-hub/
+memory-bridge-framework/
 ├── conversations/YYYY/MM/DD/*.md   # Existing: timestamped session summaries
 ├── INDEX.md                       # Existing: machine-generated TOC
 ├── raw/                           # NEW: Immutable source material

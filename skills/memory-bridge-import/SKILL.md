@@ -30,7 +30,7 @@ description: Import conversations from AI platform exports into the Agentic Memo
 Confirm you are in the Agentic Memory Hub repo by checking ANY of:
 - File `.cross-agent-memory` exists in repo root
 - `SKILL.md` with `skill: memory-bridge` in its frontmatter
-- Git remote URL contains `agentic-memory-hub`
+- Git remote URL contains `memory-bridge`
 
 If not detected: "I don't detect the memory-bridge repo. Are you in the right directory?" Stop.
 

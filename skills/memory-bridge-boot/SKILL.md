@@ -7,7 +7,7 @@ description: Lightweight awareness boot for the Agentic Memory Hub. Syncs remote
 
 **Purpose:** Boot into awareness of the Agentic Memory Hub. Sync with remote, count conversations, check skill installation, verify MCP readiness, confirm readiness — without context bloat.
 
-**When to use:** Start of a session in the agentic-memory-hub repo, or when user says "memory-bridge-boot", "boot memory bridge", or "sync memory hub".
+**When to use:** Start of a session in the memory-bridge repo, or when user says "memory-bridge-boot", "boot memory bridge", or "sync memory hub".
 
 ---
 
@@ -22,17 +22,35 @@ description: Lightweight awareness boot for the Agentic Memory Hub. Syncs remote
 Search for the repo by checking ANY of:
 - File `.cross-agent-memory` exists in a directory
 - `SKILL.md` with `skill: memory-bridge` in its frontmatter
-- Git remote URL containing `agentic-memory-hub`
+- Git remote URL containing `memory-bridge`
 
 Check these locations: `~/`, `~/projects/`, `~/memory-bridge-framework/`, current working directory.
 
-**If not found:** Clone it.
+**If found:** Note the exact path. Proceed to Step 2 (local boot path).
+
+**If not found:** Proceed to Step 1B (MCP boot path).
+
+### Step 1B: MCP Boot Path (Cross-Repo Awareness)
+
+If the repo is not local, check if your agent has the `memory-bridge` MCP server configured (see agent config paths in Step 8).
+
+**If MCP is available:** Call `get_status` to retrieve:
+- Local path on the VPS
+- Branch and sync state
+- Total conversation count
+- Date range
+- Agents with saved conversations
+- Index freshness
+
+Then skip to Step 9 and output the awareness summary using MCP-sourced data. No local git operations needed.
+
+**If neither repo nor MCP available:** Clone the repo:
 ```bash
 git clone https://github.com/<YOUR_USERNAME>/memory-bridge-framework.git
 ```
-Then enter the directory.
+Then enter the directory and proceed to Step 2.
 
-**If found:** Note the exact path. Proceed.
+---
 
 ### Step 2: Remote Sync
 
@@ -330,7 +348,8 @@ ps aux | grep "memory-bridge mcp"
 
 | Situation | Response |
 |-----------|----------|
-| Repo not found anywhere | Clone from GitHub. If clone fails, report and stop. |
+| Repo not found, no MCP | Check MCP config (Step 8). If no MCP, clone from GitHub. If clone fails, report and stop. |
+| Repo not found, MCP available | Use MCP boot path (Step 1B) |
 | `git pull` fails | Check network, check SSH key. Report error, continue with local state. |
 | `gh` not available | Note gap, continue. Do not block. |
 | Zero conversations in repo | Report empty repo. Skill check still runs. |

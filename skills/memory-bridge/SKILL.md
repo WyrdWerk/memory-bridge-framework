@@ -30,14 +30,53 @@ All six distributed skills are defined in the repo's `skills/` directory — ins
 
 ### Step 1: Verify Repo Detection
 
-Confirm you are in the Agentic Memory Hub repo by checking ANY of:
+Confirm you are in the Memory Bridge repo by checking ANY of:
 - File `.cross-agent-memory` exists in repo root
 - `SKILL.md` with `skill: memory-bridge` in its frontmatter
-- Git remote URL contains `agentic-memory-hub`
+- Git remote URL contains `memory-bridge`
 
-If not detected: "I don't detect the memory-bridge repo. Are you in the right directory?" Stop.
+**If detected:** Proceed to Step 2 (local save path).
 
-### Step 2: Generate IST Timestamp
+**If not detected:** Proceed to Step 1B (MCP client path).
+
+### Step 1B: MCP Client Path (Cross-Repo Save)
+
+If the repo is not local, check if your agent has the `memory-bridge` MCP server configured:
+
+| Agent | Check this path |
+|-------|----------------|
+| OpenCode | `~/.config/opencode/mcp_servers.json` |
+| Claude Code | `~/.claude/mcp_servers.json` |
+| Cursor | `~/.cursor/mcp.json` |
+| Codex | `~/.codex/config.toml` |
+| Pi | `~/.pi/agent/mcp.json` |
+| Hermes | Native MCP tools may be available in this session (names prefixed `mcp_memory_bridge_*`) |
+
+**If MCP is available:** Call `save_conversation` with the conversation payload:
+- `agent_id`: your agent identifier
+- `agent_name`: your agent name
+- `user`: `<YOUR_NAME>`
+- `topics`: list of topics
+- `key_discussion_points`: list of discussion points
+- `decisions_made`: list of decisions with status
+- `action_items`: list of open tasks
+- `context`: 2-3 sentence summary
+- `next_steps`: follow-up plans
+- `related_repos`: related repository names
+- `related_sessions`: related session IDs
+- `artifacts`: optional embedded artifacts
+- `learnings`: optional learnings
+- `session_id`: optional session identifier
+
+The MCP server handles timestamp generation, file creation, and git commit/push on the server. No local file operations needed.
+
+**If neither repo nor MCP available:** "I don't detect the memory-bridge repo and no MCP server is configured. Navigate to the repo or configure MCP per `AGENTS.md`."
+
+Stop.
+
+---
+
+### Step 2: Local Save — Generate IST Timestamp
 
 ```bash
 TZ=Asia/Kolkata date +"%Y%m%d-%H%M%S"
@@ -89,7 +128,7 @@ learnings: []  # Optional: 5-7 concise takeaways for coding agents (see below)
 - [ ] Decision pending
 
 ## Action Items
-- [ ] Task description (with owner if not Yash)
+- [ ] Task description (with owner if not <YOUR_NAME>)
 - [x] Completed task (include for context)
 
 ## Code/Config References
@@ -226,7 +265,8 @@ If push fails: stage locally, notify user to sync manually.
 
 | Situation | Response |
 |-----------|----------|
-| Not in repo | "I don't detect the memory-bridge repo. Are you in the right directory?" |
+| Not in repo, no MCP | "I don't detect the memory-bridge repo and no MCP server is configured. Navigate to the repo or configure MCP per AGENTS.md." |
+| Not in repo, MCP available | Use MCP client path (Step 1B) |
 | Git not initialized | Initialize git, create initial commit |
 | Push fails | Stage locally, notify user to sync manually |
 | Directory creation fails | Check permissions, report error |

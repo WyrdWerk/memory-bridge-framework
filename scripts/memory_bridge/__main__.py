@@ -602,7 +602,7 @@ def cmd_sync_skills(
         backup_root = (
             Path.home()
             / ".cache"
-            / "agentic-memory-hub"
+            / "memory-bridge-framework"
             / "skill-backups"
             / f"{_safe_ref_name(source_ref)}-{next(tempfile._get_candidate_names())}"
         )

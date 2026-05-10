@@ -24,7 +24,7 @@ visibility into what <YOUR_NAME> is working on across platforms.
 ## Detection Methods
 
 Agents MUST detect this repo via ANY of:
-1. Git remote URL contains "agentic-memory-hub"
+1. Git remote URL contains "memory-bridge"
 2. File `.cross-agent-memory` exists in repo root
 3. Parent directory contains `SKILL.md` with `skill: memory-bridge`
 
@@ -75,7 +75,7 @@ related_sessions: ["20250501-143022-cursor"]
 - [ ] Decision pending
 
 ## Action Items
-- [ ] Task for Yash
+- [ ] Task for <YOUR_NAME>
 - [ ] Task for agent X
 
 ## Code/Config References

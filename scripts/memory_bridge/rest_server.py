@@ -74,15 +74,15 @@ def get_repo_root() -> Path:
     if env_path := os.environ.get("MEMORY_BRIDGE_REPO"):
         return Path(env_path).expanduser().resolve()
     for p in [
-        Path.home() / "agentic-memory-hub",
-        Path.home() / "projects" / "agentic-memory-hub",
+        Path.home() / "memory-bridge-framework",
+        Path.home() / "projects" / "memory-bridge-framework",
     ]:
         if (p / ".cross-agent-memory").exists() or (p / ".git").exists():
             return p
     cwd = Path.cwd()
     if (cwd / ".cross-agent-memory").exists():
         return cwd
-    raise RuntimeError("Cannot find agentic-memory-hub repo. Set MEMORY_BRIDGE_REPO env var.")
+    raise RuntimeError("Cannot find memory-bridge repo. Set MEMORY_BRIDGE_REPO env var.")
 
 # Pydantic models
 class SaveConversationRequest(BaseModel):

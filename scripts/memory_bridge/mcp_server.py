@@ -84,9 +84,9 @@ def get_repo_root() -> Path:
         return Path(env_path).expanduser().resolve()
     # Try common locations
     for p in [
-        Path.home() / "agentic-memory-hub",
-        Path.home() / "projects" / "agentic-memory-hub",
-        Path.home() / ".local" / "share" / "agentic-memory-hub",
+        Path.home() / "memory-bridge-framework",
+        Path.home() / "projects" / "memory-bridge-framework",
+        Path.home() / ".local" / "share" / "memory-bridge-framework",
     ]:
         if (p / ".cross-agent-memory").exists() or (p / ".git").exists():
             return p
@@ -94,7 +94,7 @@ def get_repo_root() -> Path:
     cwd = Path.cwd()
     if (cwd / ".cross-agent-memory").exists():
         return cwd
-    raise RuntimeError("Cannot find agentic-memory-hub repo. Set MEMORY_BRIDGE_REPO env var.")
+    raise RuntimeError("Cannot find memory-bridge repo. Set MEMORY_BRIDGE_REPO env var.")
 
 
 def _github_blob_url(repo_root: Path, rel_path: str) -> str:
@@ -1025,7 +1025,7 @@ def main():
         "--repo",
         type=str,
         default=os.environ.get("MEMORY_BRIDGE_REPO", ""),
-        help="Path to agentic-memory-hub repository",
+        help="Path to memory-bridge repository",
     )
     parser.add_argument(
         "--transport",

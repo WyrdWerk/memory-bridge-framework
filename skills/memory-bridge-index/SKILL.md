@@ -15,6 +15,35 @@ description: Build or check the Memory Bridge conversation index. Rebuild scans 
 
 ## REBUILD MODE
 
+### Step 0: Repo Detection
+
+Confirm you are in the Memory Bridge repo by checking ANY of:
+- File `.cross-agent-memory` exists in repo root
+- `SKILL.md` with `skill: memory-bridge` in its frontmatter
+- Git remote URL contains `memory-bridge`
+
+**If detected:** Proceed to Step 1 (local index path).
+
+**If not detected:** Proceed to Step 0B (MCP index path).
+
+---
+
+### Step 0B: MCP Index Path (Cross-Repo Rebuild)
+
+If the repo is not local, check if your agent has the `memory-bridge` MCP server configured.
+
+**If MCP is available:**
+- For full rebuild: Call `rebuild_index`. The server rebuilds `INDEX.md` and commits/pushes automatically.
+- For freshness check only: Call `check_index`. Returns disk count vs index entries.
+
+No local file operations needed.
+
+**If neither repo nor MCP available:** "I don't detect the memory-bridge repo and no MCP server is configured. Navigate to the repo or configure MCP per `AGENTS.md`."
+
+Stop.
+
+---
+
 ### Step 1: Sync with Remote
 
 ```bash
@@ -167,7 +196,8 @@ No files modified. No commits. No pushes.
 
 | Situation | Response |
 |-----------|----------|
-| Not in agentic-memory-hub repo | "I don't detect the memory-bridge repo. Are you in the right directory?" |
+| Not in memory-bridge repo, no MCP | "I don't detect the memory-bridge repo and no MCP server is configured. Navigate to the repo or configure MCP per AGENTS.md." |
+| Not in repo, MCP available | Use MCP index path (Step 0B) |
 | Git pull fails | Report error. Continue with local state. |
 | Conversation file has no frontmatter | Log warning, skip entry, continue. |
 | Conversation file has malformed frontmatter | Log warning, skip entry, continue. |

@@ -129,16 +129,30 @@ async def git_stage_commit_push(repo_root: Path, message: str) -> dict[str, Any]
         return await _git_stage_commit_push_unlocked(repo_root, message)
 
 
-async def _git_stage_commit_push_unlocked(repo_root: Path, message: str) -> dict[str, Any]:
-    """Stage, commit, and push assuming the caller already holds git_lock."""
+async def _git_stage_commit_push_unlocked(repo_root: Path, message: str, files: list[str] | None = None) -> dict[str, Any]:
+    """Stage, commit, and push assuming the caller already holds git_lock.
+
+    Args:
+        repo_root: Path to the git repository.
+        message: Git commit message.
+        files: Optional list of specific file paths (relative to repo_root) to stage.
+               If None, stages all changes via `git add .` (backward compatibility).
+    """
     results = {"staged": False, "committed": False, "pushed": False, "message": "", "retries": 0}
 
-    # Stage all changes
-    proc = await asyncio.create_subprocess_exec(
-        "git", "-C", str(repo_root), "add", ".",
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
-    )
+    # Stage specific files or all changes
+    if files:
+        proc = await asyncio.create_subprocess_exec(
+            "git", "-C", str(repo_root), "add", *files,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+    else:
+        proc = await asyncio.create_subprocess_exec(
+            "git", "-C", str(repo_root), "add", ".",
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
     stdout, stderr = await proc.communicate()
     if proc.returncode != 0:
         raise RuntimeError(f"git add failed: {stderr.decode()}")
@@ -375,7 +389,7 @@ async def save_conversation(
             # At scale, consider run_in_executor with a threading lock alongside
             # the asyncio lock to avoid blocking concurrent MCP requests.
             index_result = build_index(repo_root, write_sidecars=True)
-            git_result = await _git_stage_commit_push_unlocked(repo_root, git_message)
+            git_result = await _git_stage_commit_push_unlocked(repo_root, git_message, files=[rel_path, "INDEX.md"])
     except Exception as e:
         git_result = {"error": str(e), "staged": False, "committed": False, "pushed": False}
 
@@ -595,7 +609,7 @@ async def update_conversation(
         async with git_lock:
             full_path.write_text(new_content, encoding="utf-8")
             index_result = build_index(repo_root, write_sidecars=True)
-            git_result = await _git_stage_commit_push_unlocked(repo_root, git_message)
+            git_result = await _git_stage_commit_push_unlocked(repo_root, git_message, files=[rel_path, "INDEX.md"])
     except Exception as e:
         git_result = {"error": str(e), "staged": False, "committed": False, "pushed": False}
 

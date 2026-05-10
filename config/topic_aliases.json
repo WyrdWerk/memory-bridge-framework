@@ -1,0 +1,9 @@
+{
+  "_comment": "Deterministic digest/search expansion — no embeddings. Maps query tokens to synonym lists.",
+  "legal": ["llp", "contract", "agreement", "legal-review", "redflag", "indemnity"],
+  "networking": ["wifi", "router", "vlan", "tailscale", "ethernet", "dns", "nokia-router", "tp-link", "airtel"],
+  "workspace": ["google-workspace", "gmail-alias", "downgrade"],
+  "memory": ["memory-bridge", "index", "digest", "cross-agent", "agentic-memory-hub"],
+  "gpu": ["vast-ai", "vastai", "unsloth", "hugging-face-cli", "hf-auth", "rented-gpu"],
+  "skill": ["skill-architecture", "skill-setup", "memory-bridge-skills"]
+}

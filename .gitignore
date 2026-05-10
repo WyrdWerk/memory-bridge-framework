@@ -1,0 +1,18 @@
+# Built index sidecars (regenerate via `memory-bridge index rebuild`)
+.index/
+
+# Local git worktrees (implementation isolation)
+.worktrees/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

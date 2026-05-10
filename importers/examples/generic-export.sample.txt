@@ -1,0 +1,5 @@
+User: Can we rebuild the hub index deterministically?
+
+Assistant: Yes — use `./bin/memory-bridge index rebuild` so INDEX.md stays the cross-agent snapshot; .index JSON is optional local cache.
+
+User: Understood.

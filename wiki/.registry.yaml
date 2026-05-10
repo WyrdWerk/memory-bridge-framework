@@ -1,0 +1,19 @@
+# LLM Wiki Topic Registry
+# Auto-updated by llm-wiki-compile skill
+# This file is git-tracked to persist compilation state
+
+version: "1.0"
+last_auto_compile: ""
+
+topics:
+  # Add your own topics below
+  # example-topic:
+  #   name: "Example Topic"
+  #   keywords: ["example", "topic"]
+  #   threshold: 2
+  #   raw_dir: "raw/example-topic"
+  #   wiki_dir: "wiki/example-topic"
+  #   last_compile: ""
+  #   sources_since_last_compile: []
+  #   status: "template"
+  #   wiki_article: "wiki/example-topic/example-article.md"

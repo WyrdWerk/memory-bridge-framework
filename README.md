@@ -21,6 +21,8 @@ This framework makes the repo the router. Structured markdown with YAML frontmat
 
 **What changed:** Before this, I'd mention something like "that headless Obsidian container on the VPS" and get blank stares. The agent had no record of the three prior sessions where we'd set it up, debugged it, and documented the exact state. I'd burn a conversation just re-establishing operational reality. Now I point the agent at the saved conversation and it loads the full context — what's running, where, how it's configured. No re-explanation. No wasted sessions. The operational state transfers across agents and across time.
 
+**This isn't theory. I've been running a private version of this for a week now.** Seven agents, 80+ conversations saved, and it's actually working. That private repo is what convinced me to clean it up, swap in placeholders, and publish the skeleton. The public repo you're looking at is the sanitized version — same markdown format, same index system, same MCP server, same git workflow. The only difference is this one won't accidentally leak my Tailscale IP.
+
 ---
 
 ## How It Works

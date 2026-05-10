@@ -189,6 +189,7 @@ Add to your Cursor MCP config (`~/.cursor/mcp.json`):
 
 When connected, the following tools are available:
 - `save_conversation` — Save current conversation to repo
+- `update_conversation` — Update any field of an existing conversation (preserves unmodified fields)
 - `search_conversations` — Lexical search with scoring
 - `digest_conversations` — Topic digest generation
 - `list_conversations` — List with pagination

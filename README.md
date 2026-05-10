@@ -186,7 +186,7 @@ With the MCP server, the agent connects to a centralized server (runs on your VP
 | Droid | SSE | `:8080/sse` |
 | Hermes | Runs the server | — |
 
-The MCP server exposes 10 tools: `save_conversation`, `search_conversations`, `digest_conversations`, `list_conversations`, `show_conversation`, `get_status`, `rebuild_index`, `check_index`, `import_conversations`, `sync_skills`.
+The MCP server exposes 11 tools: `save_conversation`, `update_conversation`, `search_conversations`, `digest_conversations`, `list_conversations`, `show_conversation`, `get_status`, `rebuild_index`, `check_index`, `import_conversations`, `sync_skills`.
 
 ---
 

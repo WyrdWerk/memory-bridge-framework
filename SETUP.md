@@ -103,8 +103,8 @@ cp -r skills/* ~/.pi/agent/skills/
 ### Droid
 
 ```bash
-mkdir -p ~/.droid/skills
-cp -r skills/* ~/.droid/skills/
+mkdir -p ~/.agents/skills
+cp -r skills/* ~/.agents/skills/
 ```
 
 ---

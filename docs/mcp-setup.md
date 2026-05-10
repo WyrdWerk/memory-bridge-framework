@@ -200,3 +200,12 @@ curl -s -X POST http://<YOUR_VPS_TAILSCALE_IP>:8081/mcp \
 - Use bearer token authentication even on private networks (defense in depth)
 - The server only exposes read/query and save operations to the conversation store — no shell execution, no filesystem access outside the repo
 - Restrict `allowed_hosts` in the server code to your specific Tailscale IP range if desired
+
+## Git Staging Behavior
+
+The server uses targeted git staging to prevent surprise commits:
+
+- **`save_conversation`** and **`update_conversation`** stage only the target conversation file and `INDEX.md`
+- **`rebuild_index`** stages all changes (intentional — it may touch multiple index sidecars)
+
+This ensures that unrelated working-tree modifications (e.g., your own edits to `scripts/` or `docs/`) are never accidentally included in an auto-commit triggered by an MCP tool call.

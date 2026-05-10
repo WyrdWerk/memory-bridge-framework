@@ -181,6 +181,7 @@ When the MCP server is configured, agents can operate on the Memory Bridge **fro
 | Tool | Purpose | Cross-repo? |
 |------|---------|-------------|
 | `save_conversation` | Save current session | ✅ Yes |
+| `update_conversation` | Update an existing conversation | ✅ Yes |
 | `search_conversations` | Lexical search with scoring | ✅ Yes |
 | `digest_conversations` | Topic digest generation | ✅ Yes |
 | `list_conversations` | List with pagination | ✅ Yes |

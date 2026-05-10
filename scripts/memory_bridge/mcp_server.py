@@ -220,7 +220,7 @@ mcp = FastMCP("memory-bridge")
 
 
 # ============================
-# MCP Tools (10 total)
+# MCP Tools (11 total)
 # ============================
 
 @mcp.tool()
@@ -384,6 +384,226 @@ async def save_conversation(
         "file_path": str(full_path),
         "rel_path": rel_path,
         "timestamp": timestamp,
+        "git_result": git_result,
+        "url": _github_blob_url(repo_root, rel_path),
+    }
+    if index_result:
+        response.update(
+            {
+                "index_updated": True,
+                "index_rebuilt_at": index_result["rebuilt_at_ist"],
+                "index_conversation_count": index_result["conversation_count"],
+            }
+        )
+    return response
+
+
+@mcp.tool()
+async def update_conversation(
+    rel_path: str,
+    agent_id: str = None,
+    agent_name: str = None,
+    context: str = None,
+    key_discussion_points: list[str] = None,
+    decisions_made: list[dict[str, Any]] = None,
+    action_items: list[str] = None,
+    topics: list[str] = None,
+    related_repos: list[str] = None,
+    related_sessions: list[str] = None,
+    code_references: list[str] = None,
+    next_steps: str = None,
+    session_id: str = None,
+    artifacts: list[dict[str, Any]] = None,
+    learnings: list[str] = None,
+    duration_minutes: int = None,
+) -> dict[str, Any]:
+    """Update an existing conversation in the Memory Bridge.
+
+    Reads the existing file at rel_path, applies only the fields you provide,
+    and rewrites + commits + pushes. Fields not provided are preserved.
+
+    Args:
+        rel_path: Relative path to the conversation file
+        agent_id: Optional new agent_id
+        agent_name: Optional new agent_name
+        context: Optional replacement for ## Context section
+        key_discussion_points: Optional replacement for ## Key Discussion Points
+        decisions_made: Optional replacement for ## Decisions Made
+        action_items: Optional replacement for ## Action Items
+        topics: Optional replacement for frontmatter topics
+        related_repos: Optional replacement for frontmatter related_repos
+        related_sessions: Optional replacement for frontmatter related_sessions
+        code_references: Optional replacement for ## Code/Config References
+        next_steps: Optional replacement for ## Next Steps / Follow-up
+        session_id: Optional replacement for frontmatter session_id
+        artifacts: Optional replacement for embedded artifacts
+        learnings: Optional replacement for frontmatter learnings
+        duration_minutes: Optional replacement for frontmatter duration_minutes
+
+    Returns:
+        dict with file_path, timestamp, git_result, and status
+    """
+    repo_root = get_repo_root()
+    full_path = repo_root / rel_path
+
+    if not full_path.exists():
+        return {
+            "status": "error",
+            "error": f"File not found: {rel_path}",
+            "file_path": str(full_path),
+        }
+
+    existing_content = full_path.read_text(encoding="utf-8")
+
+    frontmatter_match = re.match(r"^---\n(.*?)\n---\n", existing_content, re.DOTALL)
+    if not frontmatter_match:
+        return {
+            "status": "error",
+            "error": "Could not parse YAML frontmatter",
+            "file_path": str(full_path),
+        }
+
+    try:
+        import yaml
+        fm_raw = frontmatter_match.group(1)
+        fm = yaml.safe_load(fm_raw) or {}
+    except Exception:
+        return {
+            "status": "error",
+            "error": "YAML frontmatter parse error",
+            "file_path": str(full_path),
+        }
+
+    if agent_id is not None:
+        fm["agent_id"] = agent_id
+    if agent_name is not None:
+        fm["agent_name"] = agent_name
+    if topics is not None:
+        fm["topics"] = topics
+    if related_repos is not None:
+        fm["related_repos"] = related_repos
+    if related_sessions is not None:
+        fm["related_sessions"] = related_sessions
+    if session_id is not None:
+        fm["session_id"] = session_id
+    if learnings is not None:
+        fm["learnings"] = learnings
+    if duration_minutes is not None:
+        fm["duration_minutes"] = duration_minutes
+
+    fm_lines = ["---"]
+    for key, value in fm.items():
+        if isinstance(value, list):
+            fm_lines.append(f'{key}: {json.dumps(value)}')
+        elif isinstance(value, str):
+            fm_lines.append(f'{key}: "{value}"')
+        elif isinstance(value, int):
+            fm_lines.append(f'{key}: {value}')
+        else:
+            fm_lines.append(f'{key}: {json.dumps(value)}')
+    fm_lines.append("---")
+
+    body_parts = []
+
+    if context is not None:
+        body_parts.extend(["", "## Context", context])
+    else:
+        ctx_match = re.search(r"## Context\n(.*?)(?=\n## |\Z)", existing_content, re.DOTALL)
+        if ctx_match:
+            body_parts.extend(["", "## Context", ctx_match.group(1).strip()])
+
+    if key_discussion_points is not None:
+        body_parts.extend(["", "## Key Discussion Points"])
+        for i, point in enumerate(key_discussion_points, 1):
+            body_parts.append(f"{i}. {point}")
+    else:
+        kdp_match = re.search(r"## Key Discussion Points\n(.*?)(?=\n## |\Z)", existing_content, re.DOTALL)
+        if kdp_match:
+            body_parts.extend(["", "## Key Discussion Points", kdp_match.group(1).strip()])
+
+    if decisions_made is not None:
+        body_parts.extend(["", "## Decisions Made"])
+        for d in decisions_made:
+            text = d.get("text", "")
+            status = d.get("status", "pending")
+            checked = "x" if status == "finalized" else " "
+            body_parts.append(f"- [{checked}] {text}")
+    else:
+        dec_match = re.search(r"## Decisions Made\n(.*?)(?=\n## |\Z)", existing_content, re.DOTALL)
+        if dec_match:
+            body_parts.extend(["", "## Decisions Made", dec_match.group(1).strip()])
+
+    if action_items is not None:
+        body_parts.extend(["", "## Action Items"])
+        for item in action_items:
+            body_parts.append(f"- [ ] {item}")
+    else:
+        act_match = re.search(r"## Action Items\n(.*?)(?=\n## |\Z)", existing_content, re.DOTALL)
+        if act_match:
+            body_parts.extend(["", "## Action Items", act_match.group(1).strip()])
+
+    if code_references is not None:
+        if code_references:
+            body_parts.extend(["", "## Code/Config References"])
+            for ref in code_references:
+                body_parts.append(f"- {ref}")
+    else:
+        ref_match = re.search(r"## Code/Config References\n(.*?)(?=\n## |\Z)", existing_content, re.DOTALL)
+        if ref_match:
+            body_parts.extend(["", "## Code/Config References", ref_match.group(1).strip()])
+
+    if artifacts is not None:
+        for art in artifacts:
+            name = art.get("name", "Artifact")
+            content_art = art.get("content", "")
+            art_type = art.get("type", "document")
+            word_count = len(content_art.split())
+            body_parts.extend([
+                "",
+                "---",
+                "",
+                f"## Embedded Artifact: {name}",
+                "",
+                f"**Type:** {art_type}  ",
+                f"**Word Count:** {word_count}  ",
+                f"**Status:** embedded",
+                "",
+            ])
+            body_parts.append(content_art[:3000])
+            if len(content_art) > 3000:
+                body_parts.append("\n\n*(Content truncated at 3000 chars)*")
+    else:
+        art_match = re.search(r"(---\n\n## Embedded Artifact:.*?)## Next Steps", existing_content, re.DOTALL)
+        if art_match:
+            body_parts.append("")
+            body_parts.append(art_match.group(1).rstrip())
+
+    if next_steps is not None:
+        body_parts.extend(["", "## Next Steps / Follow-up", next_steps if next_steps else "(none)", ""])
+    else:
+        ns_match = re.search(r"## Next Steps / Follow-up\n(.*?)(?=\n---|\Z)", existing_content, re.DOTALL)
+        if ns_match:
+            body_parts.extend(["", "## Next Steps / Follow-up", ns_match.group(1).strip(), ""])
+
+    new_content = "\n".join(fm_lines) + "\n" + "\n".join(body_parts) + "\n"
+
+    short_topic = (fm.get("topics", ["conversation"])[0] if fm.get("topics") else "conversation").replace(" ", "-")
+    git_message = f"memory({fm.get('agent_id', 'update')}): update {rel_path} - {short_topic}"
+    index_result = None
+
+    try:
+        async with git_lock:
+            full_path.write_text(new_content, encoding="utf-8")
+            index_result = build_index(repo_root, write_sidecars=True)
+            git_result = await _git_stage_commit_push_unlocked(repo_root, git_message)
+    except Exception as e:
+        git_result = {"error": str(e), "staged": False, "committed": False, "pushed": False}
+
+    response = {
+        "status": "success" if git_result.get("pushed") else "partial",
+        "file_path": str(full_path),
+        "rel_path": rel_path,
+        "timestamp": fm.get("timestamp", generate_timestamp()),
         "git_result": git_result,
         "url": _github_blob_url(repo_root, rel_path),
     }
@@ -920,6 +1140,7 @@ async def sync_skills() -> dict[str, Any]:
         "codex": Path.home() / ".codex" / "skills",
         "pi": Path.home() / ".pi" / "skills",
         "hermes": Path.home() / ".hermes" / "skills",
+        "droid": Path.home() / ".agents" / "skills",
     }
     
     for agent_id, target_dir in agent_targets.items():
